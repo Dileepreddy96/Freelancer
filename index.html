@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer-lite — Connect, Bid, Build</title>
+    <meta name="description"
+        content="Freelancer-lite connects job posters with skilled workers. Post jobs, bid on projects, and get work done.">
+    <link rel="stylesheet" href="styles.css?v=4">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+
+        <!-- ══════════════════════════ SIDEBAR ══════════════════════════ -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        <aside id="main-sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-close" id="sidebar-close">&times;</div>
+                <div class="sidebar-profile">
+                    <div class="sidebar-avatar" id="sidebar-avatar">U</div>
+                    <div class="sidebar-email" id="sidebar-email">user@example.com</div>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" data-route="profile" class="sidebar-link sidebar-nav-link">Profile</a></li>
+                <li><a href="#" data-route="wallet" class="sidebar-link">Wallet</a></li>
+                <li><a href="#" data-route="history" class="sidebar-link">Project History</a></li>
+                <li><a href="#" data-route="analytics" class="sidebar-link">Analytics</a></li>
+                <li><a href="#" data-route="settings" class="sidebar-link">Settings</a></li>
+                <li><a href="#" data-route="help" class="sidebar-link">Help</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="sidebar-logout" class="sidebar-link sidebar-logout-btn">Sign Out</a>
+            </div>
+        </aside>
+
+        <!-- ══════════════════════════ NAVIGATION ══════════════════════════ -->
+
+        <!-- Unauthenticated Nav -->
+        <nav id="nav-unauth">
+            <div class="nav-left">
+                <div class="nav-brand">
+                    <img src="assets/logo.png" alt="Freelancer-lite Logo">
+                    Freelancer<span>lite</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#" class="nav-link" id="nav-hire-link">Hire Talent</a></li>
+                    <li><a href="#" class="nav-link" id="nav-find-work-link">Find Work</a></li>
+                    <li><a href="#" class="nav-link">Why Us</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <a href="#" id="nav-login-btn" class="nav-link">Log in</a>
+                <a href="#" id="nav-signup-btn" class="btn-primary btn-pill">Sign up</a>
+            </div>
+        </nav>
+
+        <!-- Authenticated Nav (Poster) -->
+        <nav id="nav-poster" class="hidden">
+            <div class="nav-brand">
+                <div class="hamburger-menu" id="hamburger-poster">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </div>
+                <img src="assets/logo.png" alt="Freelancer-lite Logo">
+                Freelancer<span>lite</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" data-route="home" class="nav-link">Dashboard</a></li>
+                <li><a href="#" data-route="post-job" class="nav-link">Post a Job</a></li>
+                <li><a href="#" data-route="my-jobs" class="nav-link">My Jobs</a></li>
+                <li><a href="#" data-route="messages" class="nav-link">Messages</a></li>
+                <li><a href="#" data-route="community" class="nav-link">Community</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="role-badge role-poster">Job Poster</div>
+            </div>
+        </nav>
+
+        <!-- Authenticated Nav (Worker) -->
+        <nav id="nav-worker" class="hidden">
+            <div class="nav-brand">
+                <div class="hamburger-menu" id="hamburger-worker">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </div>
+                <img src="assets/logo.png" alt="Freelancer-lite Logo">
+                Freelancer<span>lite</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" data-route="home" class="nav-link">Dashboard</a></li>
+                <li><a href="#" data-route="jobs" class="nav-link">Browse Jobs</a></li>
+                <li><a href="#" data-route="my-bids" class="nav-link">My Bids</a></li>
+                <li><a href="#" data-route="messages" class="nav-link">Messages</a></li>
+                <li><a href="#" data-route="leaderboard" class="nav-link">Leaderboard</a></li>
+                <li><a href="#" data-route="community" class="nav-link">Community</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="role-badge role-worker">Worker</div>
+            </div>
+        </nav>
+
+        <!-- ══════════════════════════ VIEWS ══════════════════════════ -->
+        <main id="main-content">
+
+            <!-- ── Landing View ── -->
+            <section id="view-landing" class="view active">
+                <div class="hero-section">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content">
+                        <div class="toggle-pill">
+                            <button class="toggle-btn active" id="toggle-hire-btn">🏢 Hire</button>
+                            <button class="toggle-btn" id="toggle-work-btn">💼 Work</button>
+                        </div>
+                        <h1 class="hero-heading" id="hero-heading-text">Grow at the speed<br>of your ambition</h1>
+                        <p class="hero-subheading" id="hero-subheading-text">Hire experts who deliver real results
+                            —<br>turning complex work into outcomes fast.</p>
+
+                        <div class="hero-search-box">
+                            <input type="text" id="hero-search-input" placeholder="I need help automating workflows…">
+                            <button class="btn-primary btn-pill" id="hero-find-talent-btn">Find Talent</button>
+                        </div>
+
+                        <div class="hero-cta-row">
+                            <button class="btn-role-card" id="hero-poster-btn">
+                                <span class="role-icon">🏢</span>
+                                <div>
+                                    <strong>Post a Job</strong>
+                                    <small>I need work done</small>
+                                </div>
+                            </button>
+                            <button class="btn-role-card" id="hero-worker-btn">
+                                <span class="role-icon">💼</span>
+                                <div>
+                                    <strong>Find Work</strong>
+                                    <small>I want to earn</small>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Auth View ── -->
+            <section id="view-auth" class="view hidden">
+                <div class="auth-page-wrapper">
+                    <!-- Left Visual -->
+                    <div class="auth-visual">
+                        <div class="auth-visual-overlay"></div>
+                        <div class="auth-visual-content">
+                            <div class="auth-visual-brand">
+                                <img src="assets/logo.png" alt="Freelancer-lite Logo">
+                                Freelancer<span>lite</span>
+                            </div>
+                            <div class="auth-role-cards">
+                                <div class="auth-role-preview active" id="preview-poster">
+                                    <span>🏢</span>
+                                    <p>Post jobs, review bids, and hire the best talent for your projects.</p>
+                                </div>
+                                <div class="auth-role-preview" id="preview-worker">
+                                    <span>💼</span>
+                                    <p>Browse jobs, bid on projects, and build your freelance career.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Forms -->
+                    <div class="auth-forms-section">
+
+                        <!-- Login Form -->
+                        <div class="auth-container" id="login-container">
+                            <div class="auth-header">
+                                <h2>Welcome back</h2>
+                                <p>Sign in to continue to Freelancer-lite.</p>
+                            </div>
+
+                            <!-- Role Switcher -->
+                            <div class="role-switcher" id="login-role-switcher">
+                                <button class="role-tab active" data-role="poster" id="login-tab-poster">
+                                    🏢 Job Poster
+                                </button>
+                                <button class="role-tab" data-role="worker" id="login-tab-worker">
+                                    💼 Worker
+                                </button>
+                            </div>
+
+                            <form id="login-form" class="card">
+                                <div class="form-group">
+                                    <label for="login-username">Username</label>
+                                    <input type="text" id="login-username" required placeholder="Enter your username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="login-password">Password</label>
+                                    <input type="password" id="login-password" required
+                                        placeholder="Enter your password">
+                                </div>
+                                <div class="form-group flex-between" style="margin-bottom: 1.5rem;">
+                                    <a href="#" id="forgot-password-link" style="font-size: 0.875rem;">Forgot
+                                        Password?</a>
+                                </div>
+                                <button type="submit" class="btn-primary btn-block" id="login-submit-btn">Login as Job
+                                    Poster</button>
+                                <div class="form-group"
+                                    style="text-align: center; margin-top: 1.25rem; margin-bottom:0;">
+                                    <p style="margin-bottom: 0;">First time here? <a href="#"
+                                            id="show-register-link">Create an account</a></p>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Register Form -->
+                        <div class="auth-container hidden" id="register-container">
+                            <div class="auth-header">
+                                <h2>Create an Account</h2>
+                                <p>Join as a Job Poster or Worker.</p>
+                            </div>
+
+                            <!-- Role Switcher -->
+                            <div class="role-switcher" id="register-role-switcher">
+                                <button class="role-tab active" data-role="poster" id="reg-tab-poster">
+                                    🏢 Job Poster
+                                </button>
+                                <button class="role-tab" data-role="worker" id="reg-tab-worker">
+                                    💼 Worker
+                                </button>
+                            </div>
+
+                            <form id="register-form" class="card">
+                                <!-- Common Fields -->
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="reg-username">Username</label>
+                                        <input type="text" id="reg-username" required placeholder="Choose a username">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reg-name">Full Name</label>
+                                        <input type="text" id="reg-name" required placeholder="John Doe">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="reg-password">Password</label>
+                                        <input type="password" id="reg-password" required
+                                            placeholder="Create a password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reg-password-confirm">Retype Password</label>
+                                        <input type="password" id="reg-password-confirm" required
+                                            placeholder="Retype password">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="reg-email">Email</label>
+                                        <input type="email" id="reg-email" required placeholder="john@example.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reg-number">Region & Phone</label>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <select id="reg-region" class="select-input" style="flex: 0 0 35%;">
+                                                <option value="US">USA (+1)</option>
+                                                <option value="IN">India (+91)</option>
+                                                <option value="UK">UK (+44)</option>
+                                                <option value="CA">Canada (+1)</option>
+                                                <option value="AU">Australia (+61)</option>
+                                            </select>
+                                            <input type="tel" id="reg-number" required placeholder="+1 234 567 890" style="flex: 1;">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Worker-only fields -->
+                                <div id="worker-fields" class="hidden">
+                                    <div class="worker-fields-label">💼 Worker Details</div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="reg-study">Education / Field of Study</label>
+                                            <input type="text" id="reg-study" placeholder="BSc Computer Science">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reg-wage">Hourly Rate (₹/hr)</label>
+                                            <input type="number" id="reg-wage" placeholder="25" min="1">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reg-resume">Upload Resume (PDF, DOCX)</label>
+                                        <input type="file" id="reg-resume" accept=".pdf,.doc,.docx">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reg-skills">Skills (comma separated)</label>
+                                        <input type="text" id="reg-skills" placeholder="HTML, CSS, JavaScript, React">
+                                    </div>
+                                </div>
+
+                                <!-- Poster-only fields -->
+                                <div id="poster-fields">
+                                    <div class="worker-fields-label">🏢 Company Details</div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="reg-company">Company / Organization</label>
+                                            <input type="text" id="reg-company" placeholder="Acme Corp (optional)">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reg-website">Website</label>
+                                            <input type="text" id="reg-website"
+                                                placeholder="https://example.com (optional)">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn-primary btn-block" id="reg-submit-btn">Create Job
+                                    Poster Account</button>
+                                <div class="form-group"
+                                    style="text-align: center; margin-top: 1.25rem; margin-bottom:0;">
+                                    <p style="margin-bottom: 0;">Already have an account? <a href="#"
+                                            id="show-login-link">Login</a></p>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div><!-- /auth-forms-section -->
+                </div><!-- /auth-page-wrapper -->
+            </section>
+
+            <!-- ── Dashboard (Home) View ── -->
+            <section id="view-home" class="view hidden">
+                <div class="container">
+                    <header class="section-header flex-between">
+                        <div>
+                            <h2>Dashboard</h2>
+                            <p>Welcome back, <strong id="home-user-name">User</strong>! <span id="home-role-tag"
+                                    class="inline-role-tag"></span></p>
+                        </div>
+                        <button class="btn-primary" id="home-action-btn">Post a Job</button>
+                    </header>
+
+                    <!-- Poster Stats -->
+                    <div id="poster-stats" class="stats-grid hidden">
+                        <div class="stat-card">
+                            <h3>Active Jobs</h3>
+                            <div class="stat-value" id="stat-active-jobs">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Bids Received</h3>
+                            <div class="stat-value" id="stat-bids-received">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Jobs Completed</h3>
+                            <div class="stat-value" id="stat-jobs-completed">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Worker Stats -->
+                    <div id="worker-stats" class="stats-grid hidden">
+                        <div class="stat-card">
+                            <h3>Active Bids</h3>
+                            <div class="stat-value" id="stat-active-bids">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Jobs Won</h3>
+                            <div class="stat-value" id="stat-jobs-won">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Earned</h3>
+                            <div class="stat-value" id="stat-earned">₹0</div>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <ul class="activity-list" id="activity-list">
+                            <!-- injected by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Post a Job View (Poster only) ── -->
+            <section id="view-post-job" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>Post a New Job</h2>
+                        <p>Describe what you need done and workers will bid on it.</p>
+                    </header>
+                    <div class="card post-job-card">
+                        <form id="post-job-form">
+                            <div class="form-group">
+                                <label for="job-title">Job Title</label>
+                                <input type="text" id="job-title" required
+                                    placeholder="e.g. Frontend Developer for E-commerce Site">
+                            </div>
+                            <div class="form-group">
+                                <label for="job-category">Category</label>
+                                <select id="job-category" class="select-input">
+                                    <option value="web">Web Development</option>
+                                    <option value="design">Design</option>
+                                    <option value="writing">Writing & Content</option>
+                                    <option value="marketing">Marketing & SEO</option>
+                                    <option value="data">Data & Analytics</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-desc">Job Description</label>
+                                <textarea id="job-desc" required
+                                    placeholder="Describe the project, goals, deliverables..." rows="5"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="job-budget">Budget (₹/hr)</label>
+                                    <input type="number" id="job-budget" required placeholder="e.g. 50" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="job-duration">Estimated Duration</label>
+                                    <select id="job-duration" class="select-input">
+                                        <option value="< 1 week">Less than 1 week</option>
+                                        <option value="1–2 weeks">1–2 weeks</option>
+                                        <option value="1 month">About 1 month</option>
+                                        <option value="3+ months">3+ months</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-skills">Required Skills (comma separated)</label>
+                                <input type="text" id="job-skills" placeholder="HTML, CSS, React">
+                            </div>
+                            <button type="submit" class="btn-primary btn-block">🚀 Post Job</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── My Jobs View (Poster only) ── -->
+            <section id="view-my-jobs" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>My Posted Jobs</h2>
+                        <p>Review bids and manage your active job listings.</p>
+                    </header>
+                    <div id="my-jobs-container" class="jobs-list">
+                        <!-- injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Browse Jobs View (Worker only) ── -->
+            <section id="view-jobs" class="view hidden">
+                <div class="container">
+                    <header class="section-header flex-between">
+                        <div>
+                            <h2>Browse Jobs</h2>
+                            <p>Find the right project and place your bid.</p>
+                        </div>
+                        <div class="search-bar-inline">
+                            <input type="text" id="job-search-input" placeholder="Search jobs…">
+                        </div>
+                    </header>
+
+                    <!-- Bid Modal -->
+                    <div id="job-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <span class="close-btn" id="close-job-modal">&times;</span>
+                            <h3>Place a Bid</h3>
+                            <h4 id="bid-job-title">Job Title</h4>
+                            <form id="bid-form">
+                                <input type="hidden" id="bid-job-id">
+                                <div class="form-group">
+                                    <label for="bid-hours">Estimated Hours</label>
+                                    <input type="number" id="bid-hours" required min="1" placeholder="e.g. 10">
+                                </div>
+                                <div class="form-group">
+                                    <label>Your Rate: ₹<span id="bid-rate">0</span>/hr</label>
+                                </div>
+                                <div class="bid-total-display">
+                                    Total Bid: <strong>₹<span id="bid-total">0</span></strong>
+                                </div>
+                                <div class="form-group" style="margin-top:1rem;">
+                                    <label for="bid-message">Message to Poster</label>
+                                    <textarea id="bid-message" rows="3"
+                                        placeholder="Why are you the best fit for this job?"></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary btn-block">✅ Submit Bid</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="jobs-list" id="jobs-container">
+                        <!-- injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── My Bids View (Worker only) ── -->
+            <section id="view-my-bids" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>My Bids</h2>
+                        <p>Track the status of your submitted bids.</p>
+                    </header>
+                    <div id="my-bids-container" class="jobs-list">
+                        <!-- injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Messages View ── -->
+            <section id="view-messages" class="view hidden">
+                <div class="container message-container">
+                    <!-- Contacts Sidebar -->
+                    <div class="message-sidebar">
+                        <div class="sidebar-header">
+                            <h3>Messages</h3>
+                        </div>
+                        <ul class="contact-list" id="contact-list">
+                            <!-- injected by JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div class="message-area" id="message-area">
+                        <!-- Empty state (no contact selected) -->
+                        <div class="chat-empty-state" id="chat-empty-state">
+                            <div class="chat-empty-icon">💬</div>
+                            <h3>Select a conversation</h3>
+                            <p>Choose a contact from the left to start messaging.</p>
+                        </div>
+
+                        <!-- Active chat (hidden until contact selected) -->
+                        <div class="chat-active hidden" id="chat-active">
+                            <div class="message-header" id="message-header">
+                                <div class="msg-contact-info">
+                                    <div class="msg-avatar" id="msg-contact-avatar" style="cursor:pointer;" onclick="if(activeContact) loadProfile(activeContact)">U</div>
+                                    <div>
+                                        <h4 id="msg-contact-name" class="clickable-profile" style="cursor:pointer;" onclick="if(activeContact) loadProfile(activeContact)">Contact</h4>
+                                        <span id="msg-contact-role" class="role-badge">Role</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-history" id="message-history">
+                                <!-- injected by JS -->
+                            </div>
+                            <form id="message-form" class="message-input-area">
+                                <input type="text" id="msg-input" placeholder="Type your message..." required>
+                                <button type="submit" class="btn-primary">Send</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Profile View ── -->
+            <section id="view-profile" class="view hidden">
+                <div class="container">
+                    <div class="profile-card card">
+                        <div class="profile-header">
+                            <div class="profile-avatar" id="profile-photo-display">
+                                <span id="profile-initials">U</span>
+                            </div>
+                            <div class="profile-title">
+                                <h2 id="profile-name">User Name</h2>
+                                <p id="profile-email">user@example.com</p>
+                                <span id="profile-role-badge" class="role-badge">Role</span>
+                            </div>
+                            <button class="btn-secondary" id="edit-profile-btn">Edit Profile</button>
+                        </div>
+                        <div class="profile-details grid-2-col">
+                            <div class="detail-group">
+                                <h4>Phone</h4>
+                                <p id="profile-phone">—</p>
+                            </div>
+                            <div class="detail-group">
+                                <h4>Email</h4>
+                                <p id="profile-email-detail">—</p>
+                            </div>
+                            <!-- Worker fields -->
+                            <div class="detail-group" id="pd-study-group">
+                                <h4>Education</h4>
+                                <p id="profile-study">—</p>
+                            </div>
+                            <div class="detail-group" id="pd-wage-group">
+                                <h4>Hourly Rate</h4>
+                                <p id="profile-wage">—</p>
+                            </div>
+                            <div class="detail-group full-width" id="pd-skills-group">
+                                <h4>Skills</h4>
+                                <div class="skills-tags" id="profile-skills"></div>
+                            </div>
+                            <div class="detail-group full-width" id="pd-wallet-group">
+                                <h4>Wallet Balance</h4>
+                                <h2 style="margin: 0.5rem 0;">₹<span id="profile-wallet">0</span></h2>
+                                <button class="btn-primary" id="btn-withdraw" style="display:none; padding: 0.5rem 1rem;">Withdraw Funds</button>
+                                <button class="btn-primary" id="btn-add-funds" style="display:none; padding: 0.5rem 1rem;">Add Funds to Escrow</button>
+                            </div>
+                            <div class="detail-group full-width" id="pd-gamification-group" style="display:none;">
+                                <h4>Achievements & Streaks</h4>
+                                <div class="gamification-stats" style="display:flex; gap:1rem; align-items:center; margin-top:0.5rem;">
+                                    <div class="badge-item" style="background:#f3f4f6; padding:0.5rem; border-radius:4px;">🔥 <span id="profile-streak">0</span> Day Streak</div>
+                                    <div class="skills-tags" id="profile-badges"></div>
+                                </div>
+                            </div>
+                            <!-- Poster fields -->
+                            <div class="detail-group" id="pd-company-group">
+                                <h4>Company</h4>
+                                <p id="profile-company">—</p>
+                            </div>
+                            <div class="detail-group" id="pd-website-group">
+                                <h4>Website</h4>
+                                <p id="profile-website">—</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ── Leaderboard View ── -->
+        <section id="view-leaderboard" class="view hidden">
+            <div class="container">
+                <header class="section-header">
+                    <h2>Top Rated Workers</h2>
+                    <p>Discover the best talent on Freelancer-lite.</p>
+                </header>
+                <div id="leaderboard-container" class="jobs-list">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Community View ── -->
+        <section id="view-community" class="view hidden">
+            <div class="container">
+                <header class="section-header flex-between">
+                    <div>
+                        <h2>Community Forum</h2>
+                        <p>Discuss, ask questions, and share knowledge.</p>
+                    </div>
+                    <button class="btn-primary" id="btn-new-post">New Post</button>
+                </header>
+                <div id="forum-container" class="jobs-list">
+                    <!-- injected by JS -->
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ── Public Profile Modal ── -->
+    <div id="public-profile-modal" class="modal hidden">
+        <div class="modal-content profile-card card">
+            <div class="profile-header">
+                <div class="profile-avatar" id="public-profile-avatar">
+                    <span id="public-profile-initials">U</span>
+                </div>
+                <div class="profile-title">
+                    <h2 id="public-profile-name">User Name</h2>
+                    <p id="public-profile-email">user@example.com</p>
+                    <span id="public-profile-role-badge" class="role-badge">Role</span>
+                </div>
+                <button class="btn-secondary" id="close-public-profile-btn">Close</button>
+            </div>
+            <div class="profile-details grid-2-col">
+                <!-- Poster Fields -->
+                <div class="detail-group" id="public-company-group">
+                    <h4>Company</h4>
+                    <p id="public-profile-company">—</p>
+                </div>
+                <div class="detail-group" id="public-jobs-group">
+                    <h4>Total Jobs Posted</h4>
+                    <p id="public-profile-jobs">0</p>
+                </div>
+                
+                <!-- Worker Fields -->
+                <div class="detail-group" id="public-study-group">
+                    <h4>Education</h4>
+                    <p id="public-profile-study">—</p>
+                </div>
+                <div class="detail-group" id="public-wage-group">
+                    <h4>Hourly Rate</h4>
+                    <p id="public-profile-wage">—</p>
+                </div>
+                <div class="detail-group full-width" id="public-skills-group">
+                    <h4>Skills</h4>
+                    <div class="skills-tags" id="public-profile-skills"></div>
+                </div>
+                
+                <!-- Common Field -->
+                <div class="detail-group full-width">
+                    <h4>Member Since</h4>
+                    <p id="public-profile-member-since">—</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=3"></script>
+</body>
+
+</html>
