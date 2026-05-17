@@ -20,7 +20,7 @@ async function apiFetch(endpoint, options = {}) {
         }
         const res = await fetch(`${API_BASE}${endpoint}`, { headers, ...options });
         if (!res.ok) {
-            const err = await res.json().catch(()=>({}));
+            const err = await res.json().catch(() => ({}));
             throw new Error(err.error || 'API Error');
         }
         return await res.json();
@@ -93,7 +93,7 @@ async function handleLogin(e) {
             method: 'POST',
             body: JSON.stringify({ username, password, role: loginRole })
         });
-        
+
         currentUser = user;
         localStorage.setItem('fl_session', username);
         onLogin();
@@ -132,7 +132,7 @@ async function handleRegister(e) {
             method: 'POST',
             body: formData // Using FormData for file upload
         });
-        
+
         currentUser = user;
         localStorage.setItem('fl_session', user.username);
         onLogin();
@@ -180,12 +180,12 @@ function toggleAuthView(view) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 async function updateDashboard() {
     if (!currentUser) return;
-    
+
     // Refresh user data (for wallet, streaks, etc)
     try {
         currentUser = await apiFetch(`/users/${currentUser.username}`);
-    } catch(e) {}
-    
+    } catch (e) { }
+
     const firstName = currentUser.name.split(' ')[0];
     $('home-user-name').textContent = firstName;
 
@@ -194,10 +194,10 @@ async function updateDashboard() {
     roleTag.className = 'inline-role-tag ' + (currentUser.role === 'poster' ? 'tag-poster' : 'tag-worker');
 
     const homeBtn = $('home-action-btn');
-    
+
     try {
-        const allJobs = await apiFetch('/jobs').catch(()=>[]);
-        const allBids = await apiFetch('/bids').catch(()=>[]);
+        const allJobs = await apiFetch('/jobs').catch(() => []);
+        const allBids = await apiFetch('/bids').catch(() => []);
 
         if (currentUser.role === 'poster') {
             $('poster-stats').classList.remove('hidden');
@@ -251,7 +251,7 @@ function updateProfileUI() {
     const badge = $('profile-role-badge');
     badge.textContent = currentUser.role === 'poster' ? '🏢 Job Poster' : '💼 Worker';
     badge.className = 'role-badge ' + (currentUser.role === 'poster' ? 'role-poster' : 'role-worker');
-    
+
     // Wallet
     $('profile-wallet').textContent = currentUser.wallet_balance || 0;
     if (currentUser.role === 'worker') {
@@ -269,16 +269,16 @@ function updateProfileUI() {
         $('pd-company-group').classList.add('hidden');
         $('pd-website-group').classList.add('hidden');
         $('pd-gamification-group').style.display = 'block';
-        
+
         $('profile-study').textContent = currentUser.study || '—';
         $('profile-wage').textContent = currentUser.wage ? `₹${currentUser.wage}/hr` : '—';
         $('profile-skills').innerHTML = (currentUser.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('');
-        
+
         // Gamification
         $('profile-streak').textContent = currentUser.streak || 0;
         const badges = currentUser.badges || [];
         $('profile-badges').innerHTML = badges.length ? badges.map(b => `<span class="skill-tag" style="background:#fbbf24;color:#000;">🏆 ${b}</span>`).join('') : '<small>No badges yet</small>';
-        
+
     } else {
         $('pd-study-group').classList.add('hidden');
         $('pd-wage-group').classList.add('hidden');
@@ -296,7 +296,7 @@ async function renderJobs(filter = '') {
     try {
         const jobs = await apiFetch('/jobs');
         const openJobs = jobs.filter(j => j.status === 'Open' && j.poster_username !== currentUser?.username);
-        
+
         const filtered = openJobs.filter(j => {
             if (!filter) return true;
             const q = filter.toLowerCase();
@@ -324,7 +324,7 @@ async function renderJobs(filter = '') {
                 <button class="btn-primary bid-btn" onclick="openBidModal(${job.id}, '${job.title.replace(/'/g, "'")}')">Bid Now</button>
             </div>`;
         }).join('') : '<p class="empty-state">No jobs found. Check back soon!</p>';
-    } catch(e) {}
+    } catch (e) { }
 }
 
 // ── Jobs: My Jobs (Poster) ────────────────────────────────────────────────────
@@ -333,7 +333,7 @@ async function renderMyJobs() {
         const jobs = await apiFetch('/jobs');
         const myJobs = jobs.filter(j => j.poster_username === currentUser.username);
         const bids = await apiFetch('/bids');
-        
+
         $('my-jobs-container').innerHTML = myJobs.length ? myJobs.map(job => {
             const jobBids = bids.filter(b => b.job_id === job.id);
             return `
@@ -353,10 +353,10 @@ async function renderMyJobs() {
                     <div style="margin-top:1rem; display:flex; gap:0.5rem; align-items:center;">
                         <label><strong>Change Status:</strong></label>
                         <select onchange="updateJobStatus(${job.id}, this.value)" class="select-input" style="padding:0.25rem; width:auto;">
-                            <option value="Open" ${job.status==='Open'?'selected':''}>Open</option>
-                            <option value="In Progress" ${job.status==='In Progress'?'selected':''}>In Progress</option>
-                            <option value="Completed" ${job.status==='Completed'?'selected':''}>Completed</option>
-                            <option value="Cancelled" ${job.status==='Cancelled'?'selected':''}>Cancelled</option>
+                            <option value="Open" ${job.status === 'Open' ? 'selected' : ''}>Open</option>
+                            <option value="In Progress" ${job.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Completed" ${job.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option value="Cancelled" ${job.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
                         </select>
                     </div>` : ''}
 
@@ -364,13 +364,13 @@ async function renderMyJobs() {
                 </div>
             </div>`;
         }).join('') : '<p class="empty-state">You haven\'t posted any jobs yet. <a href="#" onclick="navigateTo(\'post-job\')">Post your first job →</a></p>';
-    } catch(e) {}
+    } catch (e) { }
 }
 
-window.updateJobStatus = async function(jobId, status) {
+window.updateJobStatus = async function (jobId, status) {
     if (!confirm(`Change job status to ${status}?`)) {
         renderMyJobs(); // Reset UI
-        return; 
+        return;
     }
     try {
         await apiFetch(`/jobs/${jobId}/status`, {
@@ -378,7 +378,7 @@ window.updateJobStatus = async function(jobId, status) {
             body: JSON.stringify({ status })
         });
         showToast(`Job marked as ${status}`, 'success');
-        
+
         if (status === 'Completed') {
             // Very simplified: just pay the first person who bid for demo purposes
             // In a real app, the poster would select which worker to pay.
@@ -398,7 +398,7 @@ window.updateJobStatus = async function(jobId, status) {
                 showToast(`Paid ₹${winner.total} to ${winner.worker_username}`, 'success');
             }
         }
-        
+
         renderMyJobs();
         updateDashboard();
     } catch (e) {
@@ -411,7 +411,7 @@ async function renderMyBids() {
     try {
         const bids = await apiFetch('/bids');
         const myBids = bids.filter(b => b.worker_username === currentUser.username);
-        
+
         $('my-bids-container').innerHTML = myBids.length ? myBids.map(b => {
             return `
             <div class="job-card">
@@ -431,7 +431,7 @@ async function renderMyBids() {
             </div>`;
         }).join('')
             : '<p class="empty-state">You haven\'t placed any bids yet. <a href="#" onclick="navigateTo(\'jobs\')">Browse jobs →</a></p>';
-    } catch(e) {}
+    } catch (e) { }
 }
 
 // ── Bid Modal ─────────────────────────────────────────────────────────────────
@@ -457,11 +457,11 @@ async function submitBid(e) {
     e.preventDefault();
     const jobId = parseInt($('bid-job-id').value);
     const jobTitle = $('bid-job-title').textContent;
-    
+
     try {
         const jobs = await apiFetch('/jobs');
         const job = jobs.find(j => j.id === jobId);
-        
+
         await apiFetch('/bids', {
             method: 'POST',
             body: JSON.stringify({
@@ -476,17 +476,17 @@ async function submitBid(e) {
                 message: $('bid-message').value
             })
         });
-        
+
         closeJobModal();
         showToast('Bid submitted successfully! ✅', 'success');
         updateDashboard();
-    } catch (e) {}
+    } catch (e) { }
 }
 
 // ── Post Job ──────────────────────────────────────────────────────────────────
 async function handlePostJob(e) {
     e.preventDefault();
-    
+
     const payload = {
         posterUsername: currentUser.username,
         title: $('job-title').value,
@@ -496,28 +496,28 @@ async function handlePostJob(e) {
         duration: $('job-duration').value,
         skills: $('job-skills').value.split(',').map(s => s.trim()).filter(Boolean)
     };
-    
+
     try {
         await apiFetch('/jobs', {
             method: 'POST',
             body: JSON.stringify(payload)
         });
-        
+
         $('post-job-form').reset();
         updateDashboard();
         navigateTo('my-jobs');
         showToast('Job posted successfully! 🚀', 'success');
-    } catch(e) {}
+    } catch (e) { }
 }
 
 // ── Messaging System (Local Storage Based for now) ────────────────────────────
 
 // Derive contacts from local bids for UI simplicity
 async function getContacts() {
-    const bids = await apiFetch('/bids').catch(()=>[]);
+    const bids = await apiFetch('/bids').catch(() => []);
     const contacts = {};
     if (currentUser.role === 'poster') {
-        const myJobs = await apiFetch('/jobs').catch(()=>[]);
+        const myJobs = await apiFetch('/jobs').catch(() => []);
         const myJobIds = new Set(myJobs.filter(j => j.poster_username === currentUser.username).map(j => j.id));
         bids.filter(b => myJobIds.has(b.job_id)).forEach(b => {
             if (!contacts[b.worker_username]) contacts[b.worker_username] = { username: b.worker_username, name: b.worker_name, role: 'worker', context: b.job_title };
@@ -536,8 +536,8 @@ async function renderContacts() {
     const list = $('contact-list');
     if (!contacts.length) {
         list.innerHTML = `<li class="contact-empty">${currentUser.role === 'poster'
-                ? '📭 No workers have bid yet.<br><small>Post a job to get started.</small>'
-                : '📭 No contacts yet.<br><small>Bid on a job to connect with a poster.</small>'
+            ? '📭 No workers have bid yet.<br><small>Post a job to get started.</small>'
+            : '📭 No contacts yet.<br><small>Bid on a job to connect with a poster.</small>'
             }</li>`;
         return;
     }
@@ -571,7 +571,7 @@ window.openChat = async function (contactUsername) {
         const contact = await apiFetch(`/users/${contactUsername}`);
         contactName = contact.name;
         contactRole = contact.role;
-    } catch(e) {}
+    } catch (e) { }
 
     // Mark messages as read
     const allMessages = getMessages();
@@ -632,8 +632,8 @@ function renderLeaderboard() {
     $('leaderboard-container').innerHTML = workers.map((w, i) => `
         <div class="job-card" style="display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <h3>#${i+1} ${w.name}</h3>
-                <div class="job-tags">${w.badges.map(b=> `<span class="skill-tag">🏆 ${b}</span>`).join('')}</div>
+                <h3>#${i + 1} ${w.name}</h3>
+                <div class="job-tags">${w.badges.map(b => `<span class="skill-tag">🏆 ${b}</span>`).join('')}</div>
             </div>
             <div style="font-size:1.5rem; font-weight:bold; color:#2563eb;">${w.points} pts</div>
         </div>
@@ -653,6 +653,168 @@ function renderCommunity() {
         </div>
     `).join('');
 }
+
+
+// ── Sidebar Fetch Functions ───────────────────────────────────────────────────
+
+async function renderSidebarProfile() {
+    if (!currentUser) return;
+    try {
+        const data = await apiFetch(`/sidebar/profile?email=${currentUser.email}`);
+        Object.assign(currentUser, data);
+        updateProfileUI();
+    } catch (e) {
+        console.error('Error fetching profile:', e);
+        showToast('Failed to load profile details', 'error');
+    }
+}
+
+async function renderSidebarWallet() {
+    if (!currentUser) return;
+    try {
+        const data = await apiFetch(`/sidebar/wallet?email=${currentUser.email}`);
+        $('wallet-balance-display').textContent = data.balance || 0;
+
+        const list = $('wallet-transactions');
+        list.innerHTML = data.transactions && data.transactions.length
+            ? data.transactions.map(t => `<li><strong>${t.type}</strong>: ₹${t.amount} <small>(${new Date(parseInt(t.timestamp)).toLocaleDateString()})</small> - ${t.description}</li>`).join('')
+            : '<li class="empty-state">No recent transactions.</li>';
+    } catch (e) {
+        console.error('Error fetching wallet:', e);
+        showToast('Failed to load wallet', 'error');
+    }
+}
+
+async function renderSidebarHistory() {
+    if (!currentUser) return;
+    try {
+        const data = await apiFetch(`/sidebar/history?email=${currentUser.email}`);
+        $('history-container').innerHTML = data.length
+            ? data.map(job => `
+                <div class="job-card my-job-card">
+                    <div class="job-info">
+                        <h3>${job.title} <span style="font-size:0.8em; padding:2px 8px; border-radius:12px; background:#e2e8f0;">${job.status}</span></h3>
+                        <p class="job-meta">Budget: ₹${job.budget}/hr • Duration: ${job.duration}</p>
+                        <small>Posted on: ${new Date(parseInt(job.posted_at)).toLocaleDateString()}</small>
+                    </div>
+                </div>
+            `).join('')
+            : '<p class="empty-state">No project history found.</p>';
+    } catch (e) {
+        console.error('Error fetching history:', e);
+        showToast('Failed to load project history', 'error');
+    }
+}
+
+async function renderSidebarAnalytics() {
+    if (!currentUser) return;
+    try {
+        const data = await apiFetch(`/sidebar/analytics?email=${currentUser.email}`);
+        $('analytics-completed').textContent = data.total_completed || 0;
+        $('analytics-spent').textContent = `₹${data.total_spent || 0}`;
+        $('analytics-active').textContent = data.active_hires || 0;
+    } catch (e) {
+        console.error('Error fetching analytics:', e);
+        showToast('Failed to load analytics', 'error');
+    }
+}
+
+async function renderSidebarSettings() {
+    const form = $('settings-form');
+    if (form) form.reset();
+}
+
+async function handleSettingsSubmit(e) {
+    e.preventDefault();
+    if (!currentUser) return;
+    
+    const passwordInput = document.getElementById('settings-password');
+    const password = passwordInput.value;
+    
+    // Client-side validation
+    if (!password || password.trim() === '') {
+        showToast('Password cannot be empty', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('Password must be at least 6 characters long', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/settings/password', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // Using email as the session identifier as it's the primary key for the current user
+            body: JSON.stringify({ email: currentUser.email, password: password })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Network response failure');
+        }
+        
+        showToast(data.message || 'Settings updated successfully', 'success');
+        document.getElementById('settings-form').reset();
+    } catch (error) {
+        console.error('Error updating settings:', error);
+        showToast(error.message || 'Failed to update settings', 'error');
+    }
+}
+
+async function renderSidebarHelp() {
+    const container = document.getElementById('help-container');
+    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-light);">Loading FAQs...</div>';
+
+    try {
+        const response = await fetch('/api/help');
+        if (!response.ok) throw new Error(`Network response failure: ${response.status}`);
+        const faqs = await response.json();
+
+        container.innerHTML = ''; // Clear loading/error text
+
+        faqs.forEach(faq => {
+            const faqElement = document.createElement('div');
+            faqElement.className = 'faq-item';
+            faqElement.innerHTML = `
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>${faq.question}</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>${faq.answer}</p>
+                </div>
+            `;
+            container.appendChild(faqElement);
+        });
+    } catch (error) {
+        console.error('Fetch error:', error);
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load FAQs. Please try again later.</div>';
+    }
+}
+
+window.toggleFaq = function (button) {
+    const item = button.parentElement;
+    const isActive = item.classList.contains('active');
+
+    // Close all other FAQs
+    document.querySelectorAll('.faq-item').forEach(faq => {
+        faq.classList.remove('active');
+        const icon = faq.querySelector('.faq-icon');
+        if (icon) icon.textContent = '+';
+    });
+
+    // Toggle current
+    if (!isActive) {
+        item.classList.add('active');
+        const icon = item.querySelector('.faq-icon');
+        if (icon) icon.textContent = '−';
+    }
+};
 
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -731,10 +893,10 @@ function setupEventListeners() {
         sidebarOverlay.classList.remove('show');
     }
 
-    if(hamburgerPoster) hamburgerPoster.addEventListener('click', openSidebar);
-    if(hamburgerWorker) hamburgerWorker.addEventListener('click', openSidebar);
-    if(sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
-    if(sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+    if (hamburgerPoster) hamburgerPoster.addEventListener('click', openSidebar);
+    if (hamburgerWorker) hamburgerWorker.addEventListener('click', openSidebar);
+    if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
     document.querySelectorAll('.sidebar-link').forEach(link => {
         link.addEventListener('click', () => {
@@ -743,11 +905,11 @@ function setupEventListeners() {
     });
 
     const logoutBtn = $('sidebar-logout');
-    if(logoutBtn) {
-        logoutBtn.addEventListener('click', e => { 
-            e.preventDefault(); 
-            closeSidebar(); 
-            logout(); 
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', e => {
+            e.preventDefault();
+            closeSidebar();
+            logout();
         });
     }
 
@@ -783,6 +945,12 @@ function setupEventListeners() {
             if (r === 'my-bids') renderMyBids();
             if (r === 'leaderboard') renderLeaderboard();
             if (r === 'community') renderCommunity();
+            if (r === 'profile') renderSidebarProfile();
+            if (r === 'wallet') renderSidebarWallet();
+            if (r === 'history') renderSidebarHistory();
+            if (r === 'analytics') renderSidebarAnalytics();
+            if (r === 'settings') renderSidebarSettings();
+            if (r === 'help') renderSidebarHelp();
             if (r === 'messages') {
                 activeContact = null;
                 renderContacts();
@@ -799,7 +967,9 @@ function setupEventListeners() {
 
     $('post-job-form').addEventListener('submit', handlePostJob);
     $('message-form').addEventListener('submit', sendMessage);
-    
+    const settingsForm = $('settings-form');
+    if (settingsForm) settingsForm.addEventListener('submit', handleSettingsSubmit);
+
     // Wallet actions
     $('btn-withdraw').addEventListener('click', () => {
         showToast('Withdrawal request initiated. Processing will take 1-2 business days.', 'success');
@@ -828,19 +998,19 @@ function setupEventListeners() {
 setupEventListeners();
 checkSession();
 
-window.loadProfile = async function(username) {
+window.loadProfile = async function (username) {
     try {
         const user = await apiFetch(`/public/users/${username}`);
-        
+
         $('public-profile-avatar').style.backgroundColor = user.role === 'poster' ? 'var(--poster)' : 'var(--primary)';
         $('public-profile-initials').textContent = user.name.charAt(0).toUpperCase();
         $('public-profile-name').textContent = user.name;
         $('public-profile-email').textContent = user.email;
-        
+
         const badge = $('public-profile-role-badge');
         badge.textContent = user.role === 'poster' ? '🏢 Job Poster' : '💼 Worker';
         badge.className = 'role-badge ' + (user.role === 'poster' ? 'role-poster' : 'role-worker');
-        
+
         const memberSince = user.created_at ? new Date(parseInt(user.created_at)).toLocaleDateString() : 'Recently';
         $('public-profile-member-since').textContent = memberSince;
 
@@ -850,7 +1020,7 @@ window.loadProfile = async function(username) {
             $('public-study-group').classList.add('hidden');
             $('public-wage-group').classList.add('hidden');
             $('public-skills-group').classList.add('hidden');
-            
+
             $('public-profile-company').textContent = user.company || '—';
             $('public-profile-jobs').textContent = user.total_jobs || 0;
         } else {
@@ -859,19 +1029,19 @@ window.loadProfile = async function(username) {
             $('public-study-group').classList.remove('hidden');
             $('public-wage-group').classList.remove('hidden');
             $('public-skills-group').classList.remove('hidden');
-            
+
             $('public-profile-study').textContent = user.study || '—';
             $('public-profile-wage').textContent = user.wage ? `₹${user.wage}/hr` : '—';
-            
+
             let skillsHtml = (user.skills || []).map(s => `<span class="skill-tag">${s}</span>`).join('');
             if (user.resume_path) {
                 skillsHtml += `<br><br><a href="${user.resume_path}" target="_blank" class="btn-primary" style="display:inline-block; padding:0.4rem 0.8rem; text-decoration:none;">📄 View Resume</a>`;
             }
             $('public-profile-skills').innerHTML = skillsHtml || '—';
         }
-        
+
         $('public-profile-modal').classList.remove('hidden');
-    } catch(e) {
+    } catch (e) {
         console.error('Error fetching profile:', e);
         showToast('Failed to load profile', 'error');
     }

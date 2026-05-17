@@ -171,14 +171,14 @@ app.get('/api/public/users/:username', async (req, res) => {
     try {
         const result = await pool.query('SELECT username, name, email, role, company, website, study, wage, skills, resume_path, created_at FROM users WHERE username = $1', [req.params.username]);
         if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
-        
+
         let user = result.rows[0];
-        
+
         if (user.role === 'poster') {
             const jobsCount = await pool.query('SELECT COUNT(*) FROM jobs WHERE poster_username = $1', [req.params.username]);
             user.total_jobs = parseInt(jobsCount.rows[0].count);
         }
-        
+
         res.json(user);
     } catch (error) {
         console.error(error);
@@ -285,6 +285,157 @@ app.get('/api/transactions/:username', async (req, res) => {
     }
 });
 
+
+// --- Sidebar Endpoints ---
+
+app.get('/api/sidebar/profile', async (req, res) => {
+    try {
+        const { email } = req.query;
+        const result = await pool.query("SELECT username, email, role, skills, resume_path FROM users WHERE email = $1", [email]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+});
+
+app.get('/api/sidebar/wallet', async (req, res) => {
+    try {
+        const { email } = req.query;
+        const result = await pool.query("SELECT wallet_balance FROM users WHERE email = $1", [email]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+        // Fetch recent transactions
+        const userResult = await pool.query("SELECT username FROM users WHERE email = $1", [email]);
+        let transactions = [];
+        if (userResult.rows.length > 0) {
+            const txResult = await pool.query("SELECT * FROM transactions WHERE user_username = $1 ORDER BY timestamp DESC LIMIT 10", [userResult.rows[0].username]);
+            transactions = txResult.rows;
+        }
+
+        res.json({ balance: result.rows[0].wallet_balance, transactions });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch wallet' });
+    }
+});
+
+app.get('/api/sidebar/history', async (req, res) => {
+    try {
+        const { email } = req.query;
+        const result = await pool.query(`
+            SELECT * FROM jobs 
+            WHERE poster_username = (SELECT username FROM users WHERE email = $1)
+            ORDER BY posted_at DESC
+        `, [email]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch history' });
+    }
+});
+
+app.get('/api/sidebar/analytics', async (req, res) => {
+    try {
+        const { email } = req.query;
+        const result = await pool.query(`
+            SELECT COUNT(*) as total_projects, SUM(budget) as total_spent 
+            FROM jobs 
+            WHERE poster_username = (SELECT username FROM users WHERE email = $1) AND status = 'Completed'
+        `, [email]);
+
+        const activeResult = await pool.query(`
+            SELECT COUNT(*) as active_hires 
+            FROM jobs 
+            WHERE poster_username = (SELECT username FROM users WHERE email = $1) AND status = 'In Progress'
+        `, [email]);
+
+        res.json({
+            total_completed: parseInt(result.rows[0].total_projects) || 0,
+            total_spent: parseInt(result.rows[0].total_spent) || 0,
+            active_hires: parseInt(activeResult.rows[0].active_hires) || 0
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch analytics' });
+    }
+});
+
+app.put('/api/settings/password', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        if (!password || password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+        }
+
+        // TODO: Import bcrypt (const bcrypt = require('bcrypt')) and hash the password
+        // const saltRounds = 10;
+        // const password_hash = await bcrypt.hash(password, saltRounds);
+        // For now, using raw password (replace 'password' with 'password_hash' below when ready)
+        
+        const result = await pool.query(`
+            UPDATE users 
+            SET password = $1 
+            WHERE email = $2 
+            RETURNING username, email
+        `, [password, email]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        res.status(200).json({ success: true, message: 'Settings updated successfully' });
+    } catch (error) {
+        console.error("Error updating settings:", error);
+        res.status(500).json({ error: 'Failed to update settings' });
+    }
+});
+
+app.get('/api/help', async (req, res) => {
+    try {
+        const faqs = [
+            { id: 1, category: "Getting Started", question: "How do I post a job?", answer: "Click 'Post a Job' in the top navigation bar, fill out the form budget in INR, and submit." },
+            { id: 2, category: "Payments", question: "How does the wallet system work?", answer: "Funds are securely escrowed when a project begins and released once the work is completed." },
+            { id: 3, category: "Support", question: "Who do I contact for support?", answer: "You can email our 24/7 support team at support@freelancerlite.com or submit a ticket from your dashboard." },
+            { id: 4, category: "Account", question: "How do I change my password?", answer: "Navigate to the Settings tab in your sidebar, enter your new password, and click 'Update Settings'." }
+        ];
+        res.status(200).json(faqs);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch help documentation' });
+    }
+});
+
+// Missing backend route to resolve the 404 error
+app.get('/help', (req, res) => {
+    try {
+        const faqs = [
+            {
+                id: 1,
+                question: "How do I post a job?",
+                answer: "Click on 'Post a Job' in the navigation header, fill in the project requirements, and set your budget in INR."
+            },
+            {
+                id: 2,
+                question: "How does the escrow wallet protect payments?",
+                answer: "When a project kicks off, the budget funds are locked securely. They are only released to the worker once the poster approves the completed work."
+            },
+            {
+                id: 3,
+                question: "Can I switch between roles?",
+                answer: "Yes, our dual-role architecture recognizes your primary account type at login, providing custom features tailored for posters or workers seamlessly."
+            }
+        ];
+
+        // Return a successful 200 OK status with the JSON payload
+        res.status(200).json(faqs);
+    } catch (error) {
+        console.error("Error serving help data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 // Start server
 app.listen(PORT, () => {

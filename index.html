@@ -63,7 +63,12 @@
         <nav id="nav-poster" class="hidden">
             <div class="nav-brand">
                 <div class="hamburger-menu" id="hamburger-poster">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
                 </div>
                 <img src="assets/logo.png" alt="Freelancer-lite Logo">
                 Freelancer<span>lite</span>
@@ -84,7 +89,12 @@
         <nav id="nav-worker" class="hidden">
             <div class="nav-brand">
                 <div class="hamburger-menu" id="hamburger-worker">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
                 </div>
                 <img src="assets/logo.png" alt="Freelancer-lite Logo">
                 Freelancer<span>lite</span>
@@ -267,7 +277,8 @@
                                                 <option value="CA">Canada (+1)</option>
                                                 <option value="AU">Australia (+61)</option>
                                             </select>
-                                            <input type="tel" id="reg-number" required placeholder="+1 234 567 890" style="flex: 1;">
+                                            <input type="tel" id="reg-number" required placeholder="+1 234 567 890"
+                                                style="flex: 1;">
                                         </div>
                                     </div>
                                 </div>
@@ -532,9 +543,11 @@
                         <div class="chat-active hidden" id="chat-active">
                             <div class="message-header" id="message-header">
                                 <div class="msg-contact-info">
-                                    <div class="msg-avatar" id="msg-contact-avatar" style="cursor:pointer;" onclick="if(activeContact) loadProfile(activeContact)">U</div>
+                                    <div class="msg-avatar" id="msg-contact-avatar" style="cursor:pointer;"
+                                        onclick="if(activeContact) loadProfile(activeContact)">U</div>
                                     <div>
-                                        <h4 id="msg-contact-name" class="clickable-profile" style="cursor:pointer;" onclick="if(activeContact) loadProfile(activeContact)">Contact</h4>
+                                        <h4 id="msg-contact-name" class="clickable-profile" style="cursor:pointer;"
+                                            onclick="if(activeContact) loadProfile(activeContact)">Contact</h4>
                                         <span id="msg-contact-role" class="role-badge">Role</span>
                                     </div>
                                 </div>
@@ -591,13 +604,18 @@
                             <div class="detail-group full-width" id="pd-wallet-group">
                                 <h4>Wallet Balance</h4>
                                 <h2 style="margin: 0.5rem 0;">₹<span id="profile-wallet">0</span></h2>
-                                <button class="btn-primary" id="btn-withdraw" style="display:none; padding: 0.5rem 1rem;">Withdraw Funds</button>
-                                <button class="btn-primary" id="btn-add-funds" style="display:none; padding: 0.5rem 1rem;">Add Funds to Escrow</button>
+                                <button class="btn-primary" id="btn-withdraw"
+                                    style="display:none; padding: 0.5rem 1rem;">Withdraw Funds</button>
+                                <button class="btn-primary" id="btn-add-funds"
+                                    style="display:none; padding: 0.5rem 1rem;">Add Funds to Escrow</button>
                             </div>
                             <div class="detail-group full-width" id="pd-gamification-group" style="display:none;">
                                 <h4>Achievements & Streaks</h4>
-                                <div class="gamification-stats" style="display:flex; gap:1rem; align-items:center; margin-top:0.5rem;">
-                                    <div class="badge-item" style="background:#f3f4f6; padding:0.5rem; border-radius:4px;">🔥 <span id="profile-streak">0</span> Day Streak</div>
+                                <div class="gamification-stats"
+                                    style="display:flex; gap:1rem; align-items:center; margin-top:0.5rem;">
+                                    <div class="badge-item"
+                                        style="background:#f3f4f6; padding:0.5rem; border-radius:4px;">🔥 <span
+                                            id="profile-streak">0</span> Day Streak</div>
                                     <div class="skills-tags" id="profile-badges"></div>
                                 </div>
                             </div>
@@ -611,6 +629,96 @@
                                 <p id="profile-website">—</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Wallet View ── -->
+            <section id="view-wallet" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>Wallet</h2>
+                        <p>Manage your funds and view transactions.</p>
+                    </header>
+                    <div class="card" style="text-align: center; padding: 2rem;">
+                        <h3>Current Balance</h3>
+                        <h1 style="font-size: 3rem; color: var(--primary); margin: 1rem 0;">₹<span
+                                id="wallet-balance-display">0</span></h1>
+                    </div>
+                    <div class="recent-activity" style="margin-top: 2rem;">
+                        <h3>Recent Transactions</h3>
+                        <ul class="activity-list" id="wallet-transactions">
+                            <!-- Injected by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Project History View ── -->
+            <section id="view-history" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>Project History</h2>
+                        <p>Review your past and current gigs.</p>
+                    </header>
+                    <div class="jobs-list" id="history-container">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Analytics View ── -->
+            <section id="view-analytics" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>Analytics</h2>
+                        <p>Summary metrics for your activity.</p>
+                    </header>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Projects Completed</h3>
+                            <div class="stat-value" id="analytics-completed">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Money Spent</h3>
+                            <div class="stat-value" id="analytics-spent">₹0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Active Hires</h3>
+                            <div class="stat-value" id="analytics-active">0</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Settings View ── -->
+            <section id="view-settings" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>Settings</h2>
+                        <p>Manage your account preferences and security.</p>
+                    </header>
+                    <div class="card">
+                        <form id="settings-form">
+                            <div class="form-group">
+                                <label for="settings-password">New Password</label>
+                                <input type="password" id="settings-password" required placeholder="Enter new password">
+                            </div>
+                            <button type="submit" class="btn-primary">Update Settings</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Help View ── -->
+            <section id="view-help" class="view hidden">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>Help & Support</h2>
+                        <p>Frequently Asked Questions.</p>
+                    </header>
+                    <div class="card" id="help-container" style="display:flex; flex-direction:column; gap:1.5rem;">
+                        <!-- Injected by JS -->
                     </div>
                 </div>
             </section>
@@ -672,7 +780,7 @@
                     <h4>Total Jobs Posted</h4>
                     <p id="public-profile-jobs">0</p>
                 </div>
-                
+
                 <!-- Worker Fields -->
                 <div class="detail-group" id="public-study-group">
                     <h4>Education</h4>
@@ -686,7 +794,7 @@
                     <h4>Skills</h4>
                     <div class="skills-tags" id="public-profile-skills"></div>
                 </div>
-                
+
                 <!-- Common Field -->
                 <div class="detail-group full-width">
                     <h4>Member Since</h4>
