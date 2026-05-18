@@ -282,6 +282,22 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="reg-security-question">Security Question</label>
+                                        <select id="reg-security-question" class="select-input" required>
+                                            <option value="" disabled selected>Select a question...</option>
+                                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                            <option value="What city were you born in?">What city were you born in?</option>
+                                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                                            <option value="What was the model of your first car?">What was the model of your first car?</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reg-security-answer">Safe Answer</label>
+                                        <input type="text" id="reg-security-answer" required placeholder="Your answer">
+                                    </div>
+                                </div>
 
                                 <!-- Worker-only fields -->
                                 <div id="worker-fields" class="hidden">
@@ -334,6 +350,58 @@
 
                     </div><!-- /auth-forms-section -->
                 </div><!-- /auth-page-wrapper -->
+            </section>
+
+            <!-- ── Reset Password View ── -->
+            <section id="view-reset-password" class="view hidden">
+                <div class="auth-page-wrapper">
+                    <!-- Left Visual -->
+                    <div class="auth-visual">
+                        <div class="auth-visual-overlay"></div>
+                        <div class="auth-visual-content">
+                            <div class="auth-visual-brand">
+                                <img src="assets/logo.png" alt="Freelancer-lite Logo">
+                                Freelancer<span>lite</span>
+                            </div>
+                            <div class="auth-role-cards">
+                                <div class="auth-role-preview active" style="margin-top: 2rem;">
+                                    <span>🔒</span>
+                                    <p>Securely reset your password and get back to managing your work.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Form -->
+                    <div class="auth-forms-section">
+                        <div class="auth-container">
+                            <div class="auth-header">
+                                <h2>Reset Password</h2>
+                                <p>Please enter your new password below.</p>
+                            </div>
+                            <form id="reset-password-form" class="card">
+                                <input type="hidden" id="reset-email-input">
+                                <div class="form-group">
+                                    <label>Security Question</label>
+                                    <p id="reset-security-question-text" style="font-weight: bold; margin-bottom: 0.5rem;">Loading...</p>
+                                    <input type="text" id="reset-security-answer" required placeholder="Enter your Safe Answer">
+                                </div>
+                                <div class="form-group">
+                                    <label for="reset-new-password">New Password</label>
+                                    <input type="password" id="reset-new-password" required placeholder="Enter new password (min. 6 chars)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="reset-confirm-password">Confirm New Password</label>
+                                    <input type="password" id="reset-confirm-password" required placeholder="Retype new password">
+                                </div>
+                                <button type="submit" class="btn-primary btn-block" id="reset-password-submit-btn">Reset Password</button>
+                                <div class="form-group" style="text-align: center; margin-top: 1.25rem; margin-bottom:0;">
+                                    <p style="margin-bottom: 0;">Remembered it? <a href="#" id="back-to-login-link">Back to login</a></p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- ── Dashboard (Home) View ── -->
@@ -801,6 +869,24 @@
                     <p id="public-profile-member-since">—</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ── Forgot Password Modal ── -->
+    <div id="forgot-password-modal" class="modal hidden">
+        <div class="modal-content card" style="max-width: 400px;">
+            <span class="close-btn" id="close-forgot-password-modal">&times;</span>
+            <div class="auth-header" style="text-align: center;">
+                <h2>Forgot Password?</h2>
+                <p>Enter your email to answer your security question.</p>
+            </div>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="forgot-email">Email Address</label>
+                    <input type="email" id="forgot-email" required placeholder="john@example.com">
+                </div>
+                <button type="submit" class="btn-primary btn-block" id="forgot-password-submit-btn">Continue</button>
+            </form>
         </div>
     </div>
 

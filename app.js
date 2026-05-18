@@ -12,19 +12,34 @@ function saveMessages(m) { localStorage.setItem('fl_messages', JSON.stringify(m)
 function convKey(a, b) { return [a, b].sort().join('::'); }
 
 // ── API Helpers ───────────────────────────────────────────────────────────────
+
+/**
+ * Core fetch wrapper for API communication.
+ * @description Manages headers, handles network drops, and parses JSON responses.
+ * @param {string} endpoint - API route string (e.g., '/login')
+ * @param {Object} options - Fetch options (method, body, headers)
+ * @returns {Promise<Object>} Parsed JSON response
+ */
 async function apiFetch(endpoint, options = {}) {
     try {
         const headers = {};
+        // Only set Content-Type to JSON if we aren't sending FormData (which sets its own multipart boundary)
         if (!(options.body instanceof FormData)) {
             headers['Content-Type'] = 'application/json';
         }
+        
         const res = await fetch(`${API_BASE}${endpoint}`, { headers, ...options });
+        
+        // Always verify 'response.ok' before parsing JSON. 
+        // This prevents the application from crashing if the backend returns a 4xx or 5xx HTML error page.
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
             throw new Error(err.error || 'API Error');
         }
         return await res.json();
     } catch (err) {
+        // Error handling safely catches network drops (e.g., TypeError "Failed to fetch")
+        // and renders a non-blocking toast UI instead of breaking the browser layout.
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
             showToast('Offline: Unable to connect to server.', 'error');
             throw new Error('Server offline');
@@ -40,22 +55,34 @@ const $ = id => document.getElementById(id);
 const views = () => document.querySelectorAll('.view');
 
 // ── Navigation ────────────────────────────────────────────────────────────────
+
+/**
+ * Architectural flow of our Single Page Application (SPA) state changes.
+ * @description Dynamically clears and updates DOM elements to switch views without reloading the page.
+ * @param {string} route - The target view identifier (e.g., 'home', 'jobs')
+ */
 function navigateTo(route) {
+    // 1. Hide all views and reveal only the active one
+    // DOM elements are selected and cleared before updating to prevent layout overlap.
     views().forEach(v => {
         v.id === `view-${route}` ? (v.classList.remove('hidden'), v.classList.add('active'))
             : (v.classList.add('hidden'), v.classList.remove('active'));
     });
 
     const isAuth = route === 'auth' || route === 'landing';
+    
+    // 2. Manage navigation bar state based on authentication context
     $('nav-unauth').classList.toggle('hidden', !isAuth || route === 'auth');
     $('nav-poster').classList.add('hidden');
     $('nav-worker').classList.add('hidden');
 
+    // 3. Render role-specific navigation elements
     if (!isAuth && currentUser) {
         if (currentUser.role === 'poster') $('nav-poster').classList.remove('hidden');
         else $('nav-worker').classList.remove('hidden');
     }
 
+    // 4. Highlight the active link in the navigation menu
     document.querySelectorAll('.nav-link').forEach(l => {
         l.classList.toggle('active-link', l.dataset.route === route);
     });
@@ -102,18 +129,80 @@ async function handleLogin(e) {
     }
 }
 
+// ── Auth: Forgot Password ─────────────────────────────────────────────────────
+async function handleForgotPassword(e) {
+    e.preventDefault();
+    const email = $('forgot-email').value.trim();
+    if (!email) return;
+
+    try {
+        const data = await apiFetch('/auth/get-security-question', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+        
+        // Show the security question in the reset password form
+        $('reset-security-question-text').textContent = data.securityQuestion;
+        $('reset-email-input').value = email;
+        
+        $('forgot-password-form').reset();
+        $('forgot-password-modal').classList.add('hidden');
+        
+        navigateTo('reset-password');
+    } catch (err) {
+        // Handled by apiFetch toast
+    }
+}
+
+async function handleResetPassword(e) {
+    e.preventDefault();
+    const email = $('reset-email-input').value;
+    const securityAnswer = $('reset-security-answer').value;
+    const newPassword = $('reset-new-password').value;
+    const confirmPassword = $('reset-confirm-password').value;
+
+    if (newPassword !== confirmPassword) {
+        return showToast('Passwords do not match!', 'error');
+    }
+
+    try {
+        const data = await apiFetch('/auth/verify-security-answer', {
+            method: 'POST',
+            body: JSON.stringify({ email, securityAnswer, newPassword })
+        });
+        showToast(data.message, 'success');
+        $('reset-password-form').reset();
+        
+        navigateTo('auth');
+        toggleAuthView('login');
+    } catch (err) {
+        // Handled by apiFetch toast
+    }
+}
+
 // ── Auth: Register ────────────────────────────────────────────────────────────
+
+/**
+ * Handles the registration form submission
+ * @description Extracts DOM elements, creates a payload, and posts to the API
+ * @param {Event} e - Form submit event
+ */
 async function handleRegister(e) {
     e.preventDefault();
+    
+    // Client-side validation: Provide immediate feedback via Toast UI
     if ($('reg-password').value !== $('reg-password-confirm').value)
         return showToast('Passwords do not match!', 'error');
 
+    // DOM selection: Construct FormData payload to support file uploads seamlessly
     const formData = new FormData();
     formData.append('username', $('reg-username').value.trim());
     formData.append('password', $('reg-password').value);
     formData.append('name', $('reg-name').value);
     formData.append('email', $('reg-email').value);
     formData.append('number', $('reg-number').value);
+    formData.append('securityQuestion', $('reg-security-question').value);
+    formData.append('securityAnswer', $('reg-security-answer').value);
     formData.append('role', registerRole);
 
     if (registerRole === 'worker') {
@@ -128,17 +217,21 @@ async function handleRegister(e) {
     }
 
     try {
+        // Execute API call: Error handling is delegated to the centralized apiFetch method
         const user = await apiFetch('/register', {
             method: 'POST',
             body: formData // Using FormData for file upload
         });
 
+        // SPA State Change: Update the currentUser and sync to LocalStorage
         currentUser = user;
         localStorage.setItem('fl_session', user.username);
+        
+        // Transition to the logged-in layout
         onLogin();
         showToast('Account created successfully! Welcome 🎉', 'success');
     } catch (err) {
-        // Handled by apiFetch
+        // Fallback handled by apiFetch (displays network error toast)
     }
 }
 
@@ -292,6 +385,12 @@ function updateProfileUI() {
 }
 
 // ── Jobs: Render (Worker Browse) ──────────────────────────────────────────────
+
+/**
+ * Fetches and renders the marketplace job list
+ * @description Retrieves jobs, applies client-side filtering, and updates the DOM
+ * @param {string} filter - Optional search term
+ */
 async function renderJobs(filter = '') {
     try {
         const jobs = await apiFetch('/jobs');
@@ -303,6 +402,8 @@ async function renderJobs(filter = '') {
             return j.title.toLowerCase().includes(q) || (j.desc_text || '').toLowerCase().includes(q) || (j.skills || []).join(' ').toLowerCase().includes(q);
         });
 
+        // DOM Update: Safely clears the existing container and writes new HTML.
+        // If the fetch fails or returns empty, a fallback UI card ("empty-state") is rendered.
         $('jobs-container').innerHTML = filtered.length ? filtered.map(job => {
             const ago = timeAgo(job.posted_at);
             return `
@@ -324,7 +425,9 @@ async function renderJobs(filter = '') {
                 <button class="btn-primary bid-btn" onclick="openBidModal(${job.id}, '${job.title.replace(/'/g, "'")}')">Bid Now</button>
             </div>`;
         }).join('') : '<p class="empty-state">No jobs found. Check back soon!</p>';
-    } catch (e) { }
+    } catch (e) { 
+        // Silent catch: network drops are handled by apiFetch toast
+    }
 }
 
 // ── Jobs: My Jobs (Poster) ────────────────────────────────────────────────────
@@ -871,6 +974,32 @@ function setupEventListeners() {
     $('register-form').addEventListener('submit', handleRegister);
     $('show-register-link').addEventListener('click', e => { e.preventDefault(); toggleAuthView('register'); });
     $('show-login-link').addEventListener('click', e => { e.preventDefault(); toggleAuthView('login'); });
+
+    // Forgot Password Listeners
+    if ($('forgot-password-link')) {
+        $('forgot-password-link').addEventListener('click', e => {
+            e.preventDefault();
+            $('forgot-password-modal').classList.remove('hidden');
+        });
+    }
+    if ($('close-forgot-password-modal')) {
+        $('close-forgot-password-modal').addEventListener('click', () => {
+            $('forgot-password-modal').classList.add('hidden');
+        });
+    }
+    if ($('forgot-password-form')) $('forgot-password-form').addEventListener('submit', handleForgotPassword);
+    
+    // Reset Password Listeners
+    if ($('reset-password-form')) $('reset-password-form').addEventListener('submit', handleResetPassword);
+    if ($('back-to-login-link')) {
+        $('back-to-login-link').addEventListener('click', e => {
+            e.preventDefault();
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({path:newUrl}, '', newUrl);
+            navigateTo('auth');
+            toggleAuthView('login');
+        });
+    }
 
     $('login-tab-poster').addEventListener('click', () => setLoginRole('poster'));
     $('login-tab-worker').addEventListener('click', () => setLoginRole('worker'));
